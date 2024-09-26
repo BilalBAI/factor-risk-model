@@ -51,7 +51,6 @@ A better approach is to first impose some structure by identifying common factor
 
 \section*{Risk Calculations}
 Assuming \( Q \) to be a \( n \times n \) covariance matrix of asset returns: \\
-\( h \) to be the \( n \times 1 \) portfolio weight matrix:
 \begin{equation}
 Q = \begin{pmatrix}
 \sigma_1^2 & \cdots & \rho_{1n}\sigma_1\sigma_n \\
@@ -59,7 +58,10 @@ Q = \begin{pmatrix}
 \rho_{n1}\sigma_n\sigma_1 & \cdots & \sigma_n^2
 \end{pmatrix}
 \end{equation}
+Where, \( \rho_{ij} \) is the correlation between asset \( i \) and asset \( j \), \\
+\( \sigma_i \) is the standard deviation of asset \( i \), \\
 
+\( h \) to be the \( n \times 1 \) portfolio weight matrix:
 \begin{equation}
 h = \begin{pmatrix}
 w_1 \\
@@ -67,9 +69,6 @@ w_1 \\
 w_n
 \end{pmatrix}
 \end{equation}
-
-Where, \( \rho_{ij} \) is the correlation between asset \( i \) and asset \( j \), \\
-\( \sigma_i \) is the standard deviation of asset \( i \), \\
 Where, \( w_i \), \( i = 1, \ldots, n \) are the weights of each asset.
 
 The risk of the portfolio is simply:
@@ -141,7 +140,7 @@ Factors are broadly classified into:
 
 \textbf{Market and country factors}: These factors define the broad market and country behaviors.
 
-\section*{Industry Factors}
+\textbf{Industry Factors:}
 Barra primarily uses GICS classification for industry membership. It assigns multiple industry exposures to stocks based on the firm’s business segment reporting. Specifically, Barra regresses the market cap of the stocks against their reported assets within each industry.
 \begin{equation}
 M_n = \sum_{k} A_{nk} \beta^A_k + \epsilon_n
@@ -157,14 +156,16 @@ BARRA also uses Sales as an explanatory variable to estimate industry exposures:
 X_{nk} = 0.75 X^A_{nk} + 0.25 X^S_{nk}
 \end{equation}
 
+\textbf{Style factors:} These factors are constructed from descriptors such as returns, trading volume, market cap and fundamental data. Both Barra and Axioma models standardize style-factor exposures by calculating z-scores.
+
 \section*{Factor Returns}
 Once factor betas are calculated, Ordinary Least Square (OLS) regression solution may be used to estimate factor returns.
 
-The solution of the equation is:
 \begin{equation}
 f_{ols} = \arg\min_{f} \sum_{i=1}^{n} u_i^2
 \end{equation}
 
+The solution of the equation is:
 \begin{equation}
 f_{ols} = (B^T B)^{-1} B^T r
 \end{equation}
@@ -221,6 +222,10 @@ Both Barra and Axioma estimate asset level specific risk directly from the time 
 \sigma_i^2 = \frac{1}{T-1} \sum_{t=1}^{T} w_t \left( u_{i,t} - u_{\text{mean},i} \right)^2
 \end{equation}
 
+Where, 
+$u_{i,t}$ is the return of stock,
+$w_t$ is exponential weighting, with a half life equal to that used for factor variances.
+
 Barra applies Bayesian shrinkage that shrink the specific volatility estimates toward the cap-weighted mean specific volatility for the size decile \( S_n \) to which the stock belongs.
 \begin{equation}
 \sigma_i^{SH} = v_n \sigma_{\text{mean}, S_n} + (1 - v_n) \sigma_i
@@ -232,6 +237,8 @@ Where,
 \end{equation}
 
 \( w_k \) is the market cap of stock \( k \) and \( v_n \) is the shrinkage intensity. \\
+
+Axioma first winsorizes each asset's specific return history to lie within a certain number of Median Absolute Deviations (MAD) to prevent extreme specific returns from skewing the variances. For the newly listed assets, Axioma first generates a history of pseudo returns based on comparison with stocks of similar size and then apply the above winsorization scheme.
 
 \section*{Back To Risk Calculations}
 The risk of the portfolio is simply:
