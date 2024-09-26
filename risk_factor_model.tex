@@ -3,6 +3,10 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{graphicx}
+% \usepackage[a4paper, margin=1in]{geometry}
+% \usepackage[letterpaper, margin=0.5in]{geometry} % For Letter paper with 0.5-inch margin
+\usepackage[a4paper, left=2cm, right=2cm, top=3cm, bottom=3cm]{geometry} % Custom margins for each side
+
 \begin{document}
 
 \title{Risk Factor Models}
@@ -10,24 +14,40 @@
 \date{}
 \maketitle
 
+\section*{Timeline}
+\begin{itemize}
+    \item 1964: Single Factor Model
+    \item 1975: Multi-factor BARRA risk model 
+    \item 1976: Multi-factor Model (Stephen Ross)
+    \item 1989: BARRA Global Equity Model (GEM) for major asset markets throughout the world
+    \item 1992: Fama-French Model
+    \item 1998: AXIOMA (Sebastian Ceria)
+\end{itemize}
+
+
 \section*{Why do we need a factor model?}
-Risktakers need to know their portfolio's factor exposure so that they can take a certain factor tilt depending on the market condition.
+Risktakers need to know their portfolio's factor exposure so that they can take a certain factor tilt depending on the market condition.\\
+Risk managers need to know factor exposure so that they can estimate portfolio risk.\\ 
+\textbf{Note}: Risk = Standard Deviation \\
 
-Risk managers need to know factor exposure so that they can estimate portfolio risk. \\
-\textbf{Note}: Risk = Standard Deviation
+Following two inputs are required to calculate standard deviation:
+\begin{enumerate}
+    \item Asset Weights
+    \item Asset returns covariance matrix
+\end{enumerate}
 
-Following two inputs are required to calculate standard deviation: \\
-1. Asset Weights \\
-2. Asset returns covariance matrix
-
-Asset weights are easy to obtain: 
+Asset weights are easy to obtain:
 \begin{equation}
     \text{Weight}(w) = \text{Price}(p) \times \text{Quantity}(q)
 \end{equation}
 
-Calculating covariance matrix is not easy: \\
-The obvious solution of calculating variances and covariances using history of asset returns is inaccurate. A universe of \( N \) asset would require \( O(N^2) \) data points. \\
-Covariance matrix grows parabolic with respect to number of securities \( N \). \\
+Calculating covariance matrix is not easy:
+\begin{itemize}
+    \item The obvious solution of calculating variances and covariances using history of asset returns is inaccurate. A universe of \( N \) asset would require \( O(N^2) \) data points.
+    \item Covariance matrix grows parabolic with respect to number of securities \( N \).
+\end{itemize}
+
+A better approach is to first impose some structure by identifying common factors, which drive asset returns. Returns then can be modeled as a function of a relatively small number of parameters and estimating thousands of asset variances and covariances can thus be simplified to calculating a smaller handful of numbers.
 
 \section*{Risk Calculations}
 Assuming \( Q \) to be a \( n \times n \) covariance matrix of asset returns: \\
