@@ -1,0 +1,250 @@
+
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\begin{document}
+
+\title{Risk Factor Models}
+\author{}
+\date{}
+\maketitle
+
+\section*{Why do we need a factor model?}
+Risktakers need to know their portfolio's factor exposure so that they can take a certain factor tilt depending on the market condition.
+
+Risk managers need to know factor exposure so that they can estimate portfolio risk. \\
+\textbf{Note}: Risk = Standard Deviation
+
+Following two inputs are required to calculate standard deviation: \\
+1. Asset Weights \\
+2. Asset returns covariance matrix
+
+Asset weights are easy to obtain: 
+\begin{equation}
+    \text{Weight}(w) = \text{Price}(p) \times \text{Quantity}(q)
+\end{equation}
+
+Calculating covariance matrix is not easy: \\
+The obvious solution of calculating variances and covariances using history of asset returns is inaccurate. A universe of \( N \) asset would require \( O(N^2) \) data points. \\
+Covariance matrix grows parabolic with respect to number of securities \( N \). \\
+
+\section*{Risk Calculations}
+Assuming \( Q \) to be a \( n \times n \) covariance matrix of asset returns: \\
+\( h \) to be the \( n \times 1 \) portfolio weight matrix:
+\begin{equation}
+Q = \begin{pmatrix}
+\sigma_1^2 & \cdots & \rho_{1n}\sigma_1\sigma_n \\
+\vdots & \ddots & \vdots \\
+\rho_{n1}\sigma_n\sigma_1 & \cdots & \sigma_n^2
+\end{pmatrix}
+\end{equation}
+
+\begin{equation}
+h = \begin{pmatrix}
+w_1 \\
+\vdots \\
+w_n
+\end{pmatrix}
+\end{equation}
+
+Where, \( \rho_{ij} \) is the correlation between asset \( i \) and asset \( j \), \\
+\( \sigma_i \) is the standard deviation of asset \( i \), \\
+Where, \( w_i \), \( i = 1, \ldots, n \) are the weights of each asset.
+
+The risk of the portfolio is simply:
+\begin{equation}
+    \sigma_h = \sqrt{h^T Q h}
+\end{equation}
+
+Asset returns can be decomposed into a portion driven by common factors (systematic part) and residual component (specific/idiosyncratic part).
+\begin{equation}
+\begin{pmatrix}
+r_1 \\
+\vdots \\
+r_n
+\end{pmatrix}
+=
+\begin{pmatrix}
+b_{11} & \cdots & b_{1m} \\
+\vdots & \ddots & \vdots \\
+b_{n1} & \cdots & b_{nm}
+\end{pmatrix}_{n \times m}
+\begin{pmatrix}
+f_1 \\
+\vdots \\
+f_m
+\end{pmatrix}
++
+\begin{pmatrix}
+u_1 \\
+\vdots \\
+u_n
+\end{pmatrix}
+\end{equation}
+
+Or, in matrix form:
+\begin{equation}
+r = B f + u
+\end{equation}
+
+Assuming specific returns are uncorrelated amongst themselves and with factor returns, the asset return covariance matrix becomes:
+\begin{equation}
+Q = B \Sigma B^T + \Delta^2
+\end{equation}
+
+Where, \\
+\( \Sigma \) is the \( m \times m \) factor covariance matrix of factor returns, \\
+\( \Delta^2 \) is the diagonal matrix of specific variances.
+
+\section*{Estimation Universe}
+There are two sets of assets:
+\begin{itemize}
+    \item The model universe, i.e., all of the stocks contained in a particular model
+    \item The estimation universe, which is a subset of model universe and is used to estimating factor returns
+\end{itemize}
+
+The estimation universe must be:
+\begin{itemize}
+    \item \textbf{Representative}: It should reflect the full breadth of investment opportunities
+    \item \textbf{Liquid}: The assets must have reliable and regular prices.
+    \item \textbf{Stable}: This is to ensure factor exposures are well behaved across time.
+\end{itemize}
+
+\section*{Factor Exposures/Betas}
+Factors are broadly classified into:
+\begin{itemize}
+    \item Market and country factors
+    \item Industry factors
+    \item Style factors
+\end{itemize}
+
+\textbf{Market and country factors}: These factors define the broad market and country behaviors.
+
+\section*{Industry Factors}
+Barra primarily uses GICS classification for industry membership. It assigns multiple industry exposures to stocks based on the firm’s business segment reporting. Specifically, Barra regresses the market cap of the stocks against their reported assets within each industry.
+\begin{equation}
+M_n = \sum_{k} A_{nk} \beta^A_k + \epsilon_n
+\end{equation}
+
+Where, \( A_{nk} \) is the asset of stock within industry \( k \), \( \beta^A_k \) is the industry beta. The industry exposures using assets are given by:
+\begin{equation}
+X^A_{nk} = \frac{A_{nk} \beta^A_k}{\sum_i A_{ni} \beta^A_i}
+\end{equation}
+
+BARRA also uses Sales as an explanatory variable to estimate industry exposures:
+\begin{equation}
+X_{nk} = 0.75 X^A_{nk} + 0.25 X^S_{nk}
+\end{equation}
+
+\section*{Factor Returns}
+Once factor betas are calculated, Ordinary Least Square (OLS) regression solution may be used to estimate factor returns.
+
+The solution of the equation is:
+\begin{equation}
+f_{ols} = \arg\min_{f} \sum_{i=1}^{n} u_i^2
+\end{equation}
+
+\begin{equation}
+f_{ols} = (B^T B)^{-1} B^T r
+\end{equation}
+
+To tackle this, both Barra and Axioma use weighted least-square regression, assuming that the variance of specific returns is inversely proportional to the square root of total market capitalization. The weighting scheme also tunes the regression estimates in favor of larger assets.
+
+\begin{equation}
+f_{wls} = (B^T W B)^{-1} B^T W r
+\end{equation}
+
+Where, 
+\begin{equation}
+W = \begin{pmatrix}
+\sigma_1^{-2} & \cdots & 0 \\
+\vdots & \ddots & \vdots \\
+0 & \cdots & \sigma_n^{-2}
+\end{pmatrix}
+\end{equation}
+
+and 
+\begin{equation}
+\sigma_i^2 \propto \frac{1}{\sqrt{M_i}}
+\end{equation}
+
+\( M_i \) is the market cap of asset \( i \).
+
+\section*{Factor Covariance Matrix}
+Both Barra and Axioma estimate factor volatilities and correlations separately. The covariance matrix is calculated simply as,
+\begin{equation}
+\Sigma = \text{Sigma} \times \text{Correl} \times \text{Sigma}
+\end{equation}
+
+Where,
+\begin{equation}
+\text{Sigma} = \begin{pmatrix}
+\sigma_1 & \cdots & 0 \\
+\vdots & \ddots & \vdots \\
+0 & \cdots & \sigma_m
+\end{pmatrix}
+\end{equation}
+
+\begin{equation}
+\text{Correl} = \begin{pmatrix}
+\rho_{11} & \cdots & \rho_{1m} \\
+\vdots & \ddots & \vdots \\
+\rho_{m1} & \cdots & \rho_{mm}
+\end{pmatrix}
+\end{equation}
+
+
+\section*{Specific Risk Calculation}
+Both Barra and Axioma estimate asset level specific risk directly from the time series of specific returns,
+\begin{equation}
+\sigma_i^2 = \frac{1}{T-1} \sum_{t=1}^{T} w_t \left( u_{i,t} - u_{\text{mean},i} \right)^2
+\end{equation}
+
+Barra applies Bayesian shrinkage that shrink the specific volatility estimates toward the cap-weighted mean specific volatility for the size decile \( S_n \) to which the stock belongs.
+\begin{equation}
+\sigma_i^{SH} = v_n \sigma_{\text{mean}, S_n} + (1 - v_n) \sigma_i
+\end{equation}
+
+Where, 
+\begin{equation}
+\sigma_{\text{mean}, S_n} = \sum_{k \in S_n} w_k \sigma_k
+\end{equation}
+
+\( w_k \) is the market cap of stock \( k \) and \( v_n \) is the shrinkage intensity. \\
+
+\section*{Back To Risk Calculations}
+The risk of the portfolio is simply:
+\begin{equation}
+\sigma_h = \sqrt{h^T Q h}
+\end{equation}
+
+Where \( Q = B \Sigma B^T + \Delta^2 \) and \( h \) is an \( n \times 1 \) vector of portfolio holdings.
+
+Let \( X_P = B^T h \), then:
+\begin{equation}
+\sigma_h^2 = X_P^T \Sigma X_P + h^T \Delta^2 h
+\end{equation}
+
+Let \( h_B \) be the benchmark holding vector, then we can define:
+\begin{equation}
+h_{PA} = h - h_B
+\end{equation}
+\begin{equation}
+X_{PA} = B^T h_{PA}
+\end{equation}
+\begin{equation}
+X_B = B^T h_B
+\end{equation}
+
+Passive or beta risk is given by:
+\begin{equation}
+\psi_P^2 = X_B^T \Sigma X_B + h_B^T \Delta^2 h_B
+\end{equation}
+
+Active risk or tracking error is given by:
+\begin{equation}
+\psi_A^2 = X_{PA}^T \Sigma X_{PA} + h_{PA}^T \Delta^2 h_{PA}
+\end{equation}
+
+\end{document}
